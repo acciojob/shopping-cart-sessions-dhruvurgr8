@@ -1,5 +1,8 @@
-// This is the boilerplate code given for you
-// You can modify this code
+// Retrieve HTML elements
+const productList = document.getElementById("product-list");
+const cartList = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
+
 // Product data
 const products = [
   { id: 1, name: "Product 1", price: 10 },
@@ -9,30 +12,55 @@ const products = [
   { id: 5, name: "Product 5", price: 50 },
 ];
 
-// DOM elements
-const productList = document.getElementById("product-list");
-
-// Render product list
+// Function to render products
 function renderProducts() {
-  products.forEach((product) => {
+  productList.innerHTML = "";
+  products.forEach(product => {
     const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
+    li.innerHTML = `
+      ${product.name} - $${product.price}
+      <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+    `;
     productList.appendChild(li);
   });
 }
 
-// Render cart list
-function renderCart() {}
+// Function to render cart items
+function renderCart() {
+  cartList.innerHTML = "";
+  const cartItems = JSON.parse(sessionStorage.getItem("cart")) || [];
+  cartItems.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} - $${item.price}`;
+    cartList.appendChild(li);
+  });
+}
 
-// Add item to cart
-function addToCart(productId) {}
+// Function to add item to cart
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+  if (product) {
+    const cartItems = JSON.parse(sessionStorage.getItem("cart")) || [];
+    cartItems.push({ id: product.id, name: product.name, price: product.price });
+    sessionStorage.setItem("cart", JSON.stringify(cartItems));
+    renderCart();
+  }
+}
 
-// Remove item from cart
-function removeFromCart(productId) {}
+// Event listener for Add to Cart buttons
+productList.addEventListener("click", event => {
+  if (event.target.classList.contains("add-to-cart-btn")) {
+    const productId = parseInt(event.target.getAttribute("data-id"));
+    addToCart(productId);
+  }
+});
 
-// Clear cart
-function clearCart() {}
+// Event listener for Clear Cart button
+clearCartBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("cart");
+  renderCart();
+});
 
-// Initial render
+// Initial rendering
 renderProducts();
 renderCart();
